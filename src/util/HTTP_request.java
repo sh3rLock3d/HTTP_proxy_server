@@ -13,7 +13,7 @@ public class HTTP_request {
     private String URL;
     private String HTTP_version;
     private connectionStatus connection = connectionStatus.close;
-    enum connectionStatus{close, keep_alive}
+    public enum connectionStatus{close, keep_alive}
     private int keep_alive = 60;
 
     public String getMethod() {

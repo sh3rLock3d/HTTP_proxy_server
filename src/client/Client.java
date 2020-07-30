@@ -33,7 +33,7 @@ public class Client {
 
         String req = "GET / HTTP/1.1\n" +
                 "Connection: keep-alive\n" +
-                "Keep-Alive: 60\n" +
+                "Keep-Alive: 10\n" +
                 "Accept-Encoding: gzip\n";
 
         formatter.format(req);
