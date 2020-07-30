@@ -33,7 +33,7 @@ public class HTTP_request {
     }
 
     private acceptEncodingStatus acceptEncoding = acceptEncodingStatus.no_encode;
-    enum acceptEncodingStatus{gzip, no_encode}
+    public enum acceptEncodingStatus{gzip, no_encode}
 
     public HTTP_request(String method, String URL, String HTTP_version, connectionStatus connection,
                         int keep_alive, acceptEncodingStatus acceptEncoding, String data) {
