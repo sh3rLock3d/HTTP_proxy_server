@@ -31,7 +31,7 @@ public class HTTP_response {
         return null;
     }
 
-    private static String getServerTime() {
+    public static String getServerTime() {
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat dateFormat = new SimpleDateFormat(
                 "EEE, dd MMM yyyy HH:mm:ss z", Locale.US);

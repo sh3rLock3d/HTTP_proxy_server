@@ -7,6 +7,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +41,6 @@ public class Server extends Thread {
     public static void main(String[] args) throws IOException {
         ServerSocket server = new ServerSocket(PORT);
         while (true) {
-            System.out.println("waiting...");
             Socket client = server.accept();
             Thread t = new Server(client);
             t.start();
@@ -70,16 +70,26 @@ public class Server extends Thread {
             String HTTPResponse = handleClientRequest(HTTPRequest);
             // 3. Send HTTP response to the client
             client.getOutputStream().write(HTTPResponse.getBytes(StandardCharsets.UTF_8));
+            // log
+            System.out.println("-> log");
+            String dateLog = HTTP_response.getServerTime();
+            String requestLog = HTTPRequest.split("\n")[0];
+            String responseLog = HTTPResponse.split("\r\n")[0].substring(9);
+            String log = "[" + dateLog + "] \"" + requestLog + "\" \"" + responseLog + "\"";
+            System.out.println(log);
+
         }
         // 4. Close the socket
         client.close();
+        System.out.println("socket closed");
+
     }
 
     private String readClientRequest() throws IOException {
         InputStreamReader isr = new InputStreamReader(client.getInputStream());
         BufferedReader reader = new BufferedReader(isr);
         String line = reader.readLine();
-        String HTTPRequest = line;
+        String HTTPRequest = "";
         while (!line.isEmpty()) {
             HTTPRequest += line + '\n';
             line = reader.readLine();

@@ -50,7 +50,7 @@ public class HTTP_request {
         //start
         String[] firstLine = request_split[0].split(" ");
         if (firstLine.length != 3) {
-            firstLine[2] = firstLine[2].substring(0, firstLine[2].indexOf("GET")); // todo should i throw exception?
+            throw new Exception("-> error: " + request_split[0]);
         }
         method = firstLine[0];
         URL = firstLine[1];
