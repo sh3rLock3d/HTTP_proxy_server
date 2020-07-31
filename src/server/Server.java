@@ -41,6 +41,7 @@ public class Server extends Thread {
     public static void main(String[] args) throws IOException {
         ServerSocket server = new ServerSocket(PORT);
         while (true) {
+            System.out.println("waiting for new client...");
             Socket client = server.accept();
             Thread t = new Server(client);
             t.start();
@@ -132,8 +133,11 @@ public class Server extends Thread {
             clientIsAlive = false;
             return HTTP_response.fileNotFound();
         }
+
+        String connectionState = "close";
         if (request.getConnection() == HTTP_request.connectionStatus.keep_alive) {
             clientIsAlive = true;
+            connectionState = "keep-alive";
             try {
                 client.setSoTimeout(request.getKeep_alive() * 1000);
             } catch (SocketException e) {
@@ -142,6 +146,7 @@ public class Server extends Thread {
         } else {
             clientIsAlive = false;
         }
-        return HTTP_response.OK_response(res, HTTP_response.findType(url));
+
+        return HTTP_response.OK_response(res, HTTP_response.findType(url), connectionState);
     }
 }

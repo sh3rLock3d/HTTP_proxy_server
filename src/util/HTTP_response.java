@@ -6,9 +6,9 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public class HTTP_response {
-    public static String OK_response(String resp, String type){
+    public static String OK_response(String resp, String type, String connection){
         String start = "HTTP/1.0 200 OK\r\n";
-        String header = "Connection: close\r\n";
+        String header = "Connection: "+ connection +"\r\n";
         header += "Date: "+ getServerTime() +"\r\n";
         header+= "Content-Type: "+ type +"\r\n";
         header+= "Content-length: "+resp.length()+"\r\n";
