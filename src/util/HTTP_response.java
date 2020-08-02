@@ -13,7 +13,7 @@ public class HTTP_response {
         header+= "Content-Type: "+ type +"\r\n";
         header+= "Content-length: "+resp.length()+"\r\n";
         header+="\r\n";
-        return start+header+resp;
+        return start+header+resp+"\n\n";
     }
 
     public static String findType(String path) {
@@ -46,7 +46,7 @@ public class HTTP_response {
         header+= "Content-Type: text/html\r\n";
         header += "Date: "+ getServerTime() +"\r\n";
         header+="\r\n";
-        return start+header+message;
+        return start+header+message+"\n\n";
     }
 
     public static String notImplemented(String method) {
@@ -58,7 +58,7 @@ public class HTTP_response {
         header+= "Content-Type: text/html\r\n";
         header += "Date: "+ getServerTime() +"\r\n";
         header+="\r\n";
-        return start+header+method;
+        return start+header+method+"\n\n";
     }
 
     public static String methodNotAllowed() {
@@ -71,7 +71,7 @@ public class HTTP_response {
         header+= "Allow: GET\r\n";
         header += "Date: "+ getServerTime() +"\r\n";
         header+="\r\n";
-        return start+header+message;
+        return start+header+message+"\n\n";
     }
 
     public static String fileNotFound() {
@@ -83,6 +83,6 @@ public class HTTP_response {
         header+= "Content-Type: text/html\r\n";
         header += "Date: "+ getServerTime() +"\r\n";
         header+="\r\n";
-        return start+header+message;
+        return start+header+message+"\n\n";
     }
 }

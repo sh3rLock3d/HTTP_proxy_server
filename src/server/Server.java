@@ -72,13 +72,11 @@ public class Server extends Thread {
             // 3. Send HTTP response to the client
             client.getOutputStream().write(HTTPResponse.getBytes(StandardCharsets.UTF_8));
             // log
-            System.out.println("-> log");
             String dateLog = HTTP_response.getServerTime();
             String requestLog = HTTPRequest.split("\n")[0];
             String responseLog = HTTPResponse.split("\r\n")[0].substring(9);
             String log = "[" + dateLog + "] \"" + requestLog + "\" \"" + responseLog + "\"";
             System.out.println(log);
-
         }
         // 4. Close the socket
         client.close();
