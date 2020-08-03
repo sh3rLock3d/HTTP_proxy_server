@@ -93,7 +93,7 @@ public class TelnetThread extends Thread{
             double squrDiffToMean = Math.pow(val - mean, 2);
             temp += squrDiffToMean;
         }
-        double meanOfDiffs = (double) temp / (double) (table.size());
+        double meanOfDiffs = temp / (double) (table.size());
         return Math.sqrt(meanOfDiffs);
     }
 

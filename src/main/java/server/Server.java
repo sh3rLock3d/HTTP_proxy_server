@@ -1,5 +1,6 @@
 package server;
 
+import util.GZIP;
 import util.HTTP_request;
 import util.HTTP_response;
 
@@ -7,10 +8,12 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.zip.GZIPOutputStream;
 
 public class Server extends Thread {
     private static final int PORT = 8080;
@@ -21,19 +24,36 @@ public class Server extends Thread {
         this.client = client;
     }
 
-    private static String getRes(String path, boolean compress) throws FileNotFoundException {
+    private static String getRes(String path, boolean compress) throws IOException {
         File file = new File(path);
-        FileInputStream fileInputStream = new FileInputStream(file);
-        byte[] data = new byte[(int) file.length()];
-        BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
+        byte[] data = null;
+        String result = null;
+        boolean isImage = path.endsWith("png") || path.endsWith("jpeg") || path.endsWith("jpg");
         try {
-            bufferedInputStream.read(data, 0, data.length);
+            if (isImage) {
+                byte[] fileBytes = Files.readAllBytes(Paths.get(path));
+                result = new String(fileBytes, StandardCharsets.ISO_8859_1);
+            } else {
+                data = new byte[(int) file.length()];
+                FileInputStream fileInputStream = new FileInputStream(file);
+                fileInputStream.read(data);
+                result = new String(data);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String result = new String(data);
         if (compress) {
-            // todo compress result
+            if (isImage) {
+                byte[] fileBytes = Files.readAllBytes(Paths.get(path));
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(fileBytes.length);
+                GZIPOutputStream outputStream = new GZIPOutputStream(byteArrayOutputStream);
+                outputStream.write(fileBytes);
+                outputStream.flush();
+                outputStream.close();
+                result = new String(byteArrayOutputStream.toByteArray(), StandardCharsets.ISO_8859_1);
+            } else {
+                result = new String(GZIP.compress(result), StandardCharsets.ISO_8859_1);
+            }
         }
         return result;
     }
@@ -70,7 +90,8 @@ public class Server extends Thread {
             // 2. Prepare an HTTP response
             String HTTPResponse = handleClientRequest(HTTPRequest);
             // 3. Send HTTP response to the client
-            client.getOutputStream().write(HTTPResponse.getBytes(StandardCharsets.UTF_8));
+            client.getOutputStream().write(HTTPResponse.getBytes(StandardCharsets.ISO_8859_1));
+            client.getOutputStream().flush();
             // log
             String dateLog = HTTP_response.getServerTime();
             String requestLog = HTTPRequest.split("\n")[0];
@@ -118,18 +139,20 @@ public class Server extends Thread {
 
         String res = null;
         String url = null;
+        boolean gzipComp = false;
         try {
             url = request.getURL();
             if (url.equals("/")) {
                 url += "allFiles.html";
             }
-            String Path = "src/res" + url;
-            boolean gzipComp = request.getAcceptEncoding()== HTTP_request.acceptEncodingStatus.gzip;
+            String Path = "src/main/java/res" + url;
+            gzipComp = request.getAcceptEncoding() == HTTP_request.acceptEncodingStatus.gzip;
             res = getRes(Path, gzipComp);
-
         } catch (FileNotFoundException e) {
             clientIsAlive = false;
             return HTTP_response.fileNotFound();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         String connectionState = "close";
@@ -145,6 +168,6 @@ public class Server extends Thread {
             clientIsAlive = false;
         }
 
-        return HTTP_response.OK_response(res, HTTP_response.findType(url), connectionState);
+        return HTTP_response.OK_response(res, HTTP_response.findType(url), connectionState, gzipComp);
     }
 }

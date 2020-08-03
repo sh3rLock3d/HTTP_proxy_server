@@ -1,6 +1,6 @@
 package client;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.Socket;
 import java.util.Formatter;
 import java.util.Scanner;
@@ -8,12 +8,13 @@ import java.util.Scanner;
 public class Client {
     private static final int PORT = 8080;
     static Scanner scanner;
+
     public static void main(String[] args) throws IOException {
         scanner = new Scanner(System.in);
         Formatter formatter = null;
         Scanner scanner1 = null;
         Socket socket = null;
-        while (true){
+        while (true) {
             String l = scanner.nextLine();
             if (l.equals("send r 1")) {
                 request(req1, scanner1, formatter);
@@ -25,10 +26,10 @@ public class Client {
                 formatter = new Formatter(socket.getOutputStream());
             } else if (l.equals("end")) {
                 socket.close();
-            } else if (l.equals("proxy")){
+            } else if (l.equals("proxy")) {
                 proxy();
             } else if (l.equals("send r 3")) {
-                request(req3,scanner1, formatter);
+                request(req3, scanner1, formatter);
             }
         }
     }

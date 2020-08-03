@@ -1,15 +1,15 @@
 package proxy;
 
-import util.HTTP_response;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.HashMap;
 
 public class ThreadProxy extends Thread {
-    private Socket client;
+    private final Socket client;
     private Socket server;
     private String SERVER_URL;
     private int SERVER_PORT;
@@ -161,10 +161,7 @@ public class ThreadProxy extends Thread {
     }
 
     private boolean checkIfClose(String clientRequest, String serverResponse) {
-        if (serverResponse.contains("Connection: close") || clientRequest.contains("Connection: close")) {
-            return true;
-        }
-        return false;
+        return serverResponse.contains("Connection: close") || clientRequest.contains("Connection: close");
     }
 
     // telnet information

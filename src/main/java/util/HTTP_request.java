@@ -1,19 +1,19 @@
 package util;
 
-import java.util.Arrays;
-
 public class HTTP_request {
-    private String method;
+    private final String method;
 
     public String getURL() {
         return URL;
     }
 
     //enum methodStatus{GET, POST, HEAD, PUT, DELETE}
-    private String URL;
-    private String HTTP_version;
+    private final String URL;
+    private final String HTTP_version;
     private connectionStatus connection = connectionStatus.close;
-    public enum connectionStatus{close, keep_alive}
+
+    public enum connectionStatus {close, keep_alive}
+
     private int keep_alive = 60;
 
     public String getMethod() {

@@ -4,30 +4,24 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class ProxyServer{
+public class ProxyServer {
     private static final int PORT_FORWARD = 8090, PORT_TELNET = 8091;
 
     public static void main(String[] args) {
         // forward
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    runProxyThread();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        new Thread(() -> {
+            try {
+                runProxyThread();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }).start();
         // telnet
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    runTelnetThread();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        new Thread(() -> {
+            try {
+                runTelnetThread();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }).start();
     }
