@@ -15,7 +15,7 @@ public class HTTP_response {
         if (gzipComp)
             header += "Content-Encoding: gzip\r\n";
         header += "\r\n";
-        return start + header + resp;
+        return start + header + resp + "\n\n";
     }
 
     public static String findType(String path) {

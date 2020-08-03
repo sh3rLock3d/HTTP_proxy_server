@@ -51,15 +51,11 @@ public class TelnetThread extends Thread{
                 ArrayList<String> keys = new ArrayList<>();
                 HashMap<String, Integer> hashMap = ThreadProxy.visitedHost;
                 keys.addAll(hashMap.keySet());
-                Collections.sort(keys, new Comparator<String>() {
-                    @Override
-                    public int compare(String t1, String t2) {
-                        return hashMap.get(t1) - hashMap.get(t2);
-                    }
-                });
+                Collections.sort(keys, (t1, t2) -> hashMap.get(t1) - hashMap.get(t2));
                 List<String> list = keys.subList(keys.size() - k, keys.size());
                 Collections.reverse(list);
                 String response = "";
+                k = Math.max(k, list.size());
                 for (int i = 1; i <= k; i++) {
                     response += i + ". " + list.get(i) + "\n";
                 }
