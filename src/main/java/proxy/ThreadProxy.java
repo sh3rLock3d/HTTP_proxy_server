@@ -165,7 +165,7 @@ public class ThreadProxy extends Thread {
     }
 
     // telnet information
-    public static HashMap<String, Integer> statusCount = new HashMap<>(){
+    public static HashMap<String, Integer> statusCount = new HashMap<String, Integer>(){
         {
             put("200 OK", 0);
             put("301 Moved Permanently", 0);
@@ -176,7 +176,7 @@ public class ThreadProxy extends Thread {
             put("501 Not Implemented", 0);
         }
     };
-    public static HashMap<String, Integer> typeCount = new HashMap<>(){
+    public static HashMap<String, Integer> typeCount = new HashMap<String, Integer>(){
         {
             put("text/plain", 0);
             put("text/html", 0);

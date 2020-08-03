@@ -39,6 +39,8 @@ public class Server extends Thread {
                 fileInputStream.read(data);
                 result = new String(data);
             }
+        } catch (FileNotFoundException e){
+            throw e;
         } catch (IOException e) {
             e.printStackTrace();
         }
