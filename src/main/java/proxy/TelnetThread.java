@@ -28,26 +28,25 @@ public class TelnetThread extends Thread{
             if (command.equals("packet length stats")) {
                 String response = "packet length received from server(mean, std): (" + getMean(ThreadProxy.packet_length_server) +", " + getStd(ThreadProxy.packet_length_server) + ")\n";
                 response += "packet length received from client(mean, std): (" + getMean(ThreadProxy.packet_length_client) +", " + getStd(ThreadProxy.packet_length_client) + ")\n";
-                response += "packet length received from server(mean, std): (" + getMean(ThreadProxy.body_length_server) +", " + getStd(ThreadProxy.body_length_server) + ")";
+                response += "packet length received from server(mean, std): (" + getMean(ThreadProxy.body_length_server) +", " + getStd(ThreadProxy.body_length_server) + ")\n";
                 formatter.format(response).flush();
             } else if (command.equals("type count")){
                 String response = "";
                 for(String type: ThreadProxy.typeCount.keySet()){
                     int count = ThreadProxy.typeCount.get(type);
-                    response = type + ": " + count + "\n";
+                    response += type + ": " + count + "\n";
                 }
-                response = response.substring(0, response.length() - 1);
                 formatter.format(response).flush();
             } else if(command.equals("status count")){
                 String response = "";
                 for(String type: ThreadProxy.statusCount.keySet()){
                     int count = ThreadProxy.statusCount.get(type);
-                    response = type + ": " + count + "\n";
+                    response += type + ": " + count + "\n";
                 }
-                response = response.substring(0, response.length() - 1);
                 formatter.format(response).flush();
             } else if(command.startsWith("top ") && command.endsWith(" visited hosts")){
-                int k = Integer.parseInt(command.substring(command.indexOf(" ") + 1, command.lastIndexOf(" ")));
+                int k = Integer.parseInt(command.substring(command.indexOf(" ") + 1, command.lastIndexOf("v") - 1));
+                k = Math.max(k, ThreadProxy.visitedHost.size());
                 ArrayList<String> keys = new ArrayList<>();
                 HashMap<String, Integer> hashMap = ThreadProxy.visitedHost;
                 keys.addAll(hashMap.keySet());
@@ -55,14 +54,12 @@ public class TelnetThread extends Thread{
                 List<String> list = keys.subList(keys.size() - k, keys.size());
                 Collections.reverse(list);
                 String response = "";
-                k = Math.max(k, list.size());
                 for (int i = 1; i <= k; i++) {
                     response += i + ". " + list.get(i) + "\n";
                 }
-                response = response.substring(0, response.length() - 1);
                 formatter.format(response).flush();
             } else if (command.equals("exit")){
-                String response = "bye";
+                String response = "bye\n";
                 formatter.format(response).flush();
                 client.close();
                 scanner.close();

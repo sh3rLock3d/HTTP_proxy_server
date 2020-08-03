@@ -128,7 +128,7 @@ public class ThreadProxy extends Thread {
 
              */
             // send response to client
-            writeToClient.write(clientRequest.getBytes());
+            writeToClient.write(serverResponse.getBytes());
             writeToClient.flush();
             // information for telnet
             updateTelnetInfo(clientRequest, serverResponse);
@@ -214,12 +214,8 @@ public class ThreadProxy extends Thread {
         // packet length
         packet_length_server.add(serverResponse.length());
         packet_length_client.add(clientRequest.length());
-        if (serverResponse.split("\n")[0].contains("OK")) {
-            int startOfBody = serverResponse.indexOf("\n\n") + 1;
-            body_length_server.add(serverResponse.substring(startOfBody).length());
-        } else {
-            body_length_server.add(0);
-        }
+        int startOfBody = serverResponse.indexOf("\n\n") + 1;
+        body_length_server.add(serverResponse.substring(startOfBody).length());
     }
 }
 
