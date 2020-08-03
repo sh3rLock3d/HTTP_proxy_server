@@ -1,9 +1,13 @@
 package proxy;
 
+import util.HTTP_response;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.HashMap;
@@ -27,43 +31,43 @@ public class ThreadProxy extends Thread {
 
     private void runThreadProxy() throws IOException {
         server = null;
-        Formatter writeToServer = null;
+        OutputStream writeToServer = null;
         BufferedReader readerFromServer = null;
-        BufferedReader readerFromClient = new BufferedReader(new InputStreamReader(client.getInputStream()));
-        Formatter writeToClient = new Formatter(client.getOutputStream());
+        BufferedReader clientToServer = new BufferedReader(new InputStreamReader(client.getInputStream()));
+        OutputStream writeToClient = client.getOutputStream();
 
         while (true) {
             //read client request
             String clientRequest = "";
-            try {
-                String line = readerFromClient.readLine();
-                while (!line.isEmpty()) {
-                    clientRequest += line + '\n';
-                    line = readerFromClient.readLine();
-                }
-                clientRequest += '\n';
-                if (clientRequest.contains("Content-Length:")) {
-                    line = readerFromClient.readLine();
-                    while (!line.isEmpty()) {
-                        clientRequest += line + '\n';
-                        line = readerFromClient.readLine();
-                    }
-                    clientRequest += '\n';
-                }
-            } catch (Exception e) {
-                // client is closed
+            if (client.isClosed()) {
                 break;
             }
+            String inputLine;
+            boolean hasBody = false;
+            int bodyLen = 0;
+            while (!(inputLine = clientToServer.readLine()).equals("")) {
+                clientRequest += inputLine + "\n";
+                if (inputLine.startsWith("Content-Length: ")) {
+                    hasBody = true;
+                    bodyLen = Integer.parseInt(inputLine.substring(inputLine.indexOf(' ') +  1));
+                }
+            }
+            clientRequest += '\n';
             clientRequest = setHeaderOfClientRequest(clientRequest);
+
+            if (hasBody) {
+                // todo
+            }
+
             System.out.println(clientRequest);
             // initialize server
             if (server == null) {
                 findHost(clientRequest);
                 server = new Socket(SERVER_URL, SERVER_PORT);
-                writeToServer = new Formatter(server.getOutputStream());
+                writeToServer = server.getOutputStream();
                 readerFromServer = new BufferedReader(new InputStreamReader(server.getInputStream()));
             }
-            /*
+
             // log
             System.out.println(
                     "Request: [" +
@@ -77,27 +81,32 @@ public class ThreadProxy extends Thread {
                             "\""
             );
 
-             */
             //send request to server
-            writeToServer.format(clientRequest).flush();
+            writeToServer.write(clientRequest.getBytes());
+            writeToServer.flush();
             //receive server response
             if (server.isClosed()) {
                 System.out.println("server is close");
                 break;
             }
+            //read client request
             String serverResponse = "";
-            String line = readerFromServer.readLine();
-            while (!line.isEmpty()) {
-                serverResponse += line + '\n';
-                line = readerFromServer.readLine();
+            hasBody = false;
+            bodyLen = 0;
+            while (!(inputLine = readerFromServer.readLine()).equals("")) {
+                serverResponse += inputLine + "\n";
+                if (inputLine.startsWith("Content-Length: ")) {
+                    hasBody = true;
+                    bodyLen = Integer.parseInt(inputLine.substring(inputLine.indexOf(' ') +  1));
+                }
             }
             serverResponse += '\n';
-            line = readerFromServer.readLine();
-            if (serverResponse.split("\n")[0].contains("OK")) {
-                while (!line.isEmpty()) {
-                    serverResponse += line + '\n';
-                    line = readerFromServer.readLine();
-                }
+            //System.out.println(serverResponse);
+            if (hasBody) {
+              // todo
+                byte[] body = new byte[bodyLen];
+                server.getInputStream().read(body);
+                serverResponse += new String(body , StandardCharsets.ISO_8859_1);
                 serverResponse += '\n';
             }
             System.out.println(serverResponse);
@@ -119,7 +128,8 @@ public class ThreadProxy extends Thread {
 
              */
             // send response to client
-            writeToClient.format(serverResponse).flush();
+            writeToClient.write(clientRequest.getBytes());
+            writeToClient.flush();
             // information for telnet
             updateTelnetInfo(clientRequest, serverResponse);
             //check if close
@@ -128,13 +138,8 @@ public class ThreadProxy extends Thread {
             }
         }
         System.out.println("close connection");
-        server.close();
+        server.close();// todo close all in seperated try catch
         client.close();
-        readerFromClient.close();
-        writeToServer.close();
-        readerFromServer.close();
-        writeToClient.close();
-
     }
 
     private String setHeaderOfClientRequest(String clientRequest) {
