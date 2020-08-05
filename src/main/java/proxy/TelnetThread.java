@@ -24,7 +24,6 @@ public class TelnetThread extends Thread{
         Formatter formatter = new Formatter(client.getOutputStream());
         while (true) {
             String command = scanner.nextLine();
-            System.out.println(command);
             if (command.equals("packet length stats")) {
                 String response = "packet length received from server(mean, std): (" + getMean(ThreadProxy.packet_length_server) +", " + getStd(ThreadProxy.packet_length_server) + ")\n";
                 response += "packet length received from client(mean, std): (" + getMean(ThreadProxy.packet_length_client) +", " + getStd(ThreadProxy.packet_length_client) + ")\n";
@@ -46,7 +45,7 @@ public class TelnetThread extends Thread{
                 formatter.format(response).flush();
             } else if(command.startsWith("top ") && command.endsWith(" visited hosts")){
                 int k = Integer.parseInt(command.substring(command.indexOf(" ") + 1, command.lastIndexOf("v") - 1));
-                k = Math.max(k, ThreadProxy.visitedHost.size());
+                k = Math.min(k, ThreadProxy.visitedHost.size());
                 ArrayList<String> keys = new ArrayList<>();
                 HashMap<String, Integer> hashMap = ThreadProxy.visitedHost;
                 keys.addAll(hashMap.keySet());
@@ -55,7 +54,7 @@ public class TelnetThread extends Thread{
                 Collections.reverse(list);
                 String response = "";
                 for (int i = 1; i <= k; i++) {
-                    response += i + ". " + list.get(i) + "\n";
+                    response += i + ". " + list.get(i - 1) + "\n";
                 }
                 formatter.format(response).flush();
             } else if (command.equals("exit")){
@@ -67,7 +66,7 @@ public class TelnetThread extends Thread{
                 System.out.println("telnet connection close");
                 break;
             } else {
-                formatter.format("not supported\n").flush();
+                formatter.format("Bad Request\n").flush();
             }
         }
     }
